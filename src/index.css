@@ -1,0 +1,25 @@
+*, *::after, *::before {
+  font-family: Roboto, sans-serif;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+}
+
+.my__background {
+  /* background: linear-gradient(90deg, #00c8ff2c 0%, #92fe9d25 100%); */
+  background: rgb(250, 241, 250);
+}
+
+
+/** Managing Tree Style */
+.node__root > circle {
+  fill: #1976d2;
+}
+
+.node__branch > circle {
+  fill: #9c27b0;
+}
+
+.node__leaf > circle {
+  fill: #ff9800;
+}
