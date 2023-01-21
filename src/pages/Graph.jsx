@@ -1,26 +1,39 @@
-import {
-	Alert,
-	Box,
-	Button,
-	CircularProgress,
-	Container,
-	Paper,
-} from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Container, Paper } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import React from "react";
+import React, { useState } from "react";
 import Tree from "react-d3-tree";
 import { gql, useQuery } from "@apollo/client";
+import { DetailsCard } from "../components";
 
 
 
 const Graph = () => {
 
+	const [clickedPerson, setClickedPerson] = useState([false, {}]);
+
 	const myQuery = gql`
 		query Test {
-			queryparent {
+			queryPerson {
 				id
 				name
 				work
+				living_at
+				address
+				work1
+				work1_address
+				work2
+				work2_address
+				phone
+				cell_phone
+				work_phone
+				national_id
+				direct_children {
+					id
+				}
+				area {
+					id
+					name
+				}
 			}
 		}
 	`;
@@ -62,12 +75,14 @@ const Graph = () => {
 		);
 	}
 
+
 	const handle = (e) => {
-		console.log(e);
+		if (e.depth) {
+			setClickedPerson(() => {
+				return [true, e.data.personInfo]
+			})
+		}
 	};
-
-	console.log(data)
-
 
 	//* Tree Data
 	const handledData = {
@@ -75,27 +90,18 @@ const Graph = () => {
 		children: []
 	}
 
-	data.queryparent.forEach((item) => {
+	data.queryPerson.forEach((item) => {
 		handledData.children.push({
 			name: item.name,
 			attributes: {
 				id: item.id,
-				work: item.work
-			}
+			},
+			personInfo: item
 		})
 	})
 
 	return (
-		<Container sx={{ mt: 2, display: "flex", flexDirection: "column" }}>
-			<Button
-				sx={{ ml: "auto", mb: 2 }}
-				variant="contained"
-				color="secondary"
-				size="large"
-				startIcon={<EditIcon />}
-			>
-				Edit
-			</Button>
+		<Container sx={{ mt: 6, display: "flex", flexDirection: "column" }}>
 			<Paper
 				sx={{
 					width: 1,
@@ -116,6 +122,15 @@ const Graph = () => {
 					onNodeClick={handle}
 				/>
 			</Paper>
+			<Box sx={{
+				my: 3
+			}}>
+				{clickedPerson[0] ? 
+				<DetailsCard person={clickedPerson[1]} />
+				:
+				<></>
+				}
+			</Box>
 		</Container>
 	);
 };
