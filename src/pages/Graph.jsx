@@ -1,44 +1,17 @@
-import { Alert, Box, Button, CircularProgress, Container, Paper } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import { Alert, Box, CircularProgress, Container, Paper } from "@mui/material";
 import React, { useState } from "react";
 import Tree from "react-d3-tree";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { DetailsCard } from "../components";
+import { ALL_PERSON_QUERY } from "../graphQL/queries";
 
 
 
 const Graph = () => {
 
 	const [clickedPerson, setClickedPerson] = useState([false, {}]);
-
-	const myQuery = gql`
-		query Test {
-			queryPerson {
-				id
-				name
-				work
-				living_at
-				address
-				work1
-				work1_address
-				work2
-				work2_address
-				phone
-				cell_phone
-				work_phone
-				national_id
-				direct_children {
-					id
-				}
-				area {
-					id
-					name
-				}
-			}
-		}
-	`;
 	
-	const { loading, error, data } = useQuery(myQuery);
+	const { loading, error, data } = useQuery(ALL_PERSON_QUERY);
 
 	//* For Loading State
 	if (loading){
@@ -109,6 +82,7 @@ const Graph = () => {
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
+					direction: "rtl"
 				}}
 			>
 				<Tree
@@ -118,6 +92,14 @@ const Graph = () => {
 					leafNodeClassName="node__leaf"
 					orientation="vertical"
 					pathFunc="step"
+					dimensions={{
+						width: 650,
+						height: 200
+					}}
+					nodeSize={{
+						x: 200,
+						y: 200
+					}}
 					enableLegacyTransitions={true}
 					onNodeClick={handle}
 				/>

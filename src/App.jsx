@@ -5,7 +5,7 @@ import '@fontsource/cairo/700.css';
 import { Box } from '@mui/material';
 import { Route, Routes } from 'react-router-dom';
 import { Footer, Navbar } from './components';
-import { AddingForm, Graph } from './pages';
+import { AddingForm, EditingForm, Graph } from './pages';
 
 
 function App() {
@@ -18,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Graph />} />
           <Route path="/add" element={<AddingForm />}  />
+          <Route path="/edit/:id" element={<EditingForm />}  />
         </Routes>
       </Box>
       <Footer />

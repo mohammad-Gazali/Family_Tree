@@ -19,7 +19,7 @@ const Navbar = () => {
             </Link>
             <Button sx={{ ml: 'auto' }} color="inherit">
                 <Link style={{color: 'white', textDecoration: 'none', fontSize: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2}} to='/add'>
-                    <Add sx={{ fontSize: "20px" }} />إضافة
+                    إضافة <Add sx={{ fontSize: "20px" }} />
                 </Link>
             </Button>
         </Toolbar>

@@ -4,17 +4,26 @@ import { Person, Build, LocationOn, Home, Work, Factory, WorkOutline, FactoryOut
 import Edit from '@mui/icons-material/Edit'
 import DetailsCardItem from './DetailsCardItem';
 import DetailsCardChildrenItem from './DetailsCardChildrenItem';
+import { useNavigate } from 'react-router-dom';
 
 
 const DetailsCard = ({ person }) => {
+
+  const navigate = useNavigate();
+
+  const handleEdit = () => {
+    navigate(`/edit/${person.id}`)
+  }
+
   return (
-    <Paper sx={{ direction: 'rtl', mb: 5 }}>
+    <Paper sx={{  mb: 5 }}>
       <List sx={{ position: 'relative' }}>
         <Button
-          sx={{ position: 'absolute', top: 8, left: 16, fontFamily: '"Cairo", sans-serif', gap: 1, display: 'flex' }}
+          sx={{ position: 'absolute', top: 8, right: 16, fontFamily: '"Cairo", sans-serif', gap: 1, display: 'flex' }}
           variant="contained"
           color="secondary"
           endIcon={<Edit sx={{ ml: -1 }} />}
+          onClick={handleEdit}
         >
           تعديل
         </Button>
@@ -30,7 +39,7 @@ const DetailsCard = ({ person }) => {
         <DetailsCardItem icon={<WorkOutline />} text="العمل 2" content={person.work2} />
         <DetailsCardItem icon={<FactoryOutlined />} text="عنوان العمل 2" content={person.work2_address} />
         <DetailsCardItem icon={<Phone />} text="رقم الهاتف" content={person.phone} />
-        <DetailsCardItem icon={<Smartphone />} text="رقم الجوال" content={`0${person.cell_phone}`} />
+        <DetailsCardItem icon={<Smartphone />} text="رقم الجوال" content={person.cell_phone} cellPhone={true} />
         <DetailsCardItem icon={<ContactPhone />} text="رقم العمل" content={person.work_phone} />
         <DetailsCardItem icon={<Grid3x3 />} text="الرقم الوطني" content={person.national_id} />
         <DetailsCardItem icon={<CoPresent />} text="القيد" content={person.area.name} />

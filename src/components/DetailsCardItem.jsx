@@ -1,7 +1,7 @@
 import { Box, ListItemButton, ListItemIcon } from "@mui/material";
 import React from "react";
 
-const DetailsCardItem = ({ icon, text, content }) => {
+const DetailsCardItem = ({ icon, text, content, cellPhone }) => {
 
     if (content) {
         return (
@@ -14,7 +14,7 @@ const DetailsCardItem = ({ icon, text, content }) => {
                         width: '96px',
                         fontSize: 16,
                         borderBottom: 1,
-                        borderLeft: 1,
+                        borderRight: 1,
                         borderColor: '#e0e0e0'
                     }}
                 >
@@ -24,7 +24,7 @@ const DetailsCardItem = ({ icon, text, content }) => {
                     <ListItemIcon>
                         { icon }
                     </ListItemIcon>
-                    {content}
+                    { cellPhone ? `0${content}` : content }
                 </ListItemButton>
             </Box>
         );
