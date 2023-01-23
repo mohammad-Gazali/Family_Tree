@@ -1,5 +1,5 @@
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
-import { Add, FamilyRestroom } from '@mui/icons-material';
+import { Add, FamilyRestroom, Delete } from '@mui/icons-material';
 import React from 'react'
 import { Link } from 'react-router-dom';
 
@@ -18,8 +18,13 @@ const Navbar = () => {
                 </Typography>
             </Link>
             <Button sx={{ ml: 'auto' }} color="inherit">
-                <Link style={{color: 'white', textDecoration: 'none', fontSize: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2}} to='/add'>
+                <Link style={{color: 'white', textDecoration: 'none', fontSize: 14, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2}} to='/add'>
                     إضافة <Add sx={{ fontSize: "20px" }} />
+                </Link>
+            </Button>
+            <Button color="inherit">
+                <Link style={{color: 'white', textDecoration: 'none', fontSize: 14, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2}} to='/delete'>
+                    حذف <Delete />
                 </Link>
             </Button>
         </Toolbar>

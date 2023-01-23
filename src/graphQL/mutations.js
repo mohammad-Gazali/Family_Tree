@@ -11,10 +11,18 @@ export const ADD_PERSON_MUTATION = gql`
 `;
 
 export const UPDATE_PERSON_MUTATION = gql`
-    mutation MyMutation($set: PersonPatch, $id: [ID!]) {
+    mutation UpdatePerson($set: PersonPatch, $id: [ID!]) {
     updatePerson(input: {filter: {id: $id}, set: $set}) {
         person {
             id
         }
     }
 }`
+
+export const DELETE_PERSON_MUTATION = gql`
+	mutation DeletePerson($id: [ID!]) {
+		deletePerson(filter: {id: $id}) {
+			msg
+		}
+	}
+`

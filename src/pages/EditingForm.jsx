@@ -116,13 +116,13 @@ const EditingForm = () => {
         id: id,
       }})
 
+      navigate('/')
+      window.location.reload()
+
     } catch (error) {
       console.log(error)
       console.log(info)
     }
-
-    navigate('/')
-    window.location.reload()
   }
 
   return (

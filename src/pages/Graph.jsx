@@ -1,9 +1,10 @@
-import { Alert, Box, CircularProgress, Container, Paper } from "@mui/material";
+import { Alert, Box, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Tree from "react-d3-tree";
 import { useQuery } from "@apollo/client";
 import { DetailsCard } from "../components";
 import { ALL_PERSON_QUERY } from "../graphQL/queries";
+import { Favorite } from "@mui/icons-material";
 
 
 
@@ -49,7 +50,7 @@ const Graph = () => {
 	}
 
 
-	const handle = (e) => {
+	const handleNodeClick = (e) => {
 		if (e.depth) {
 			setClickedPerson(() => {
 				return [true, e.data.personInfo]
@@ -75,6 +76,9 @@ const Graph = () => {
 
 	return (
 		<Container sx={{ mt: 6, display: "flex", flexDirection: "column" }}>
+			<Typography bgcolor="secondary.main" display="flex" justifyContent="center" alignItems="center" gap={1} fontWeight={700} fontSize={20} width="fit-content" color="white" fontFamily="'Cairo', sans-serif" mb={4} mx="auto" textAlign="center" padding={2} borderRadius={3} boxShadow={3}>
+                شجرة العائلة <Favorite />
+            </Typography>
 			<Paper
 				sx={{
 					width: 1,
@@ -101,7 +105,7 @@ const Graph = () => {
 						y: 200
 					}}
 					enableLegacyTransitions={true}
-					onNodeClick={handle}
+					onNodeClick={handleNodeClick}
 				/>
 			</Paper>
 			<Box sx={{

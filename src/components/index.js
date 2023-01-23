@@ -1,6 +1,6 @@
-import { default as Navbar } from './Navbar';
-import { default as Footer } from './Footer';
-import { default as DetailsCard } from './DetailsCard';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import DetailsCard from './DetailsCard';
 
 
 export { Navbar, Footer, DetailsCard }

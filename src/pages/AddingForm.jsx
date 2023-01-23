@@ -1,5 +1,5 @@
 import { Add } from '@mui/icons-material'
-import { Alert, Button, CircularProgress, Container, MenuItem, TextField } from '@mui/material'
+import { Alert, Button, CircularProgress, Container, MenuItem, TextField, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { useQuery, useMutation } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
@@ -114,13 +114,13 @@ const AddingForm = () => {
         input: values,
       }})
 
+      navigate('/')
+      window.location.reload()
+
     } catch (error) {
       console.log(error)
       console.log(info)
     }
-
-    navigate('/')
-    window.location.reload()
   }
 
   return (
@@ -143,6 +143,9 @@ const AddingForm = () => {
           boxShadow: 2
         }}
         >
+          <Typography fontWeight={700} fontSize={20} bgcolor="primary.main" color="white" padding={2} borderRadius={3} boxShadow={3}>
+            إضافة شخص
+          </Typography>
           <Box sx={{
             '& *': { fontFamily: '"Cairo", sans-serif !important' },
             '& > :not(style)': { m: 1, width: '40ch'},
