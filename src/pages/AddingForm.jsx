@@ -224,7 +224,7 @@ const AddingForm = () => {
                 })}
               </TextField>
             :
-              null
+              <input type="hidden" name="father_id" value="NON-VALUE" />
             }
           </Box>
           <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch', '& *': { pointerEvents: 'none !important' } }} color="secondary" type='submit' variant='contained' endIcon={<Add />} onClick={(e) => { e.target.style.pointerEvents = 'none'; e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.12)'; e.target.style.color = 'rgba(0, 0, 0, 0.26)'; e.target.style.boxShadow = 'none' }}>
