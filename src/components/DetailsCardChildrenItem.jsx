@@ -10,7 +10,7 @@ const DetailsCardChildrenItem = ({ childs }) => {
       setOpen(prestate => !prestate)
   }
 
-  if (childs) {
+  if (childs && childs.length !== 0) {
     return (
       <>
       <ListItemButton onClick={expand} sx={{ position: 'relative' }}>
@@ -18,13 +18,13 @@ const DetailsCardChildrenItem = ({ childs }) => {
               <FamilyRestroom />
             </ListItemIcon>
             الأبناء
-            {open ? <ExpandLess sx={{ position: "absolute", left: "16px" }} /> : <ExpandMore sx={{ position: "absolute", left: "16px" }} />}
+            {open ? <ExpandLess sx={{ position: "absolute", right: "16px" }} /> : <ExpandMore sx={{ position: "absolute", right: "16px" }} />}
           </ListItemButton>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <List disablePadding>
               { childs.map((child) => {
                 return (
-                  <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemButton key={child.id} sx={{ pl: 4 }}>
                     <ListItemIcon>
                       <PersonOutline />
                     </ListItemIcon>

@@ -1,28 +1,51 @@
 import { gql } from "@apollo/client";
 
-export const ALL_PERSON_QUERY = gql`
-	query AllPersonQuery {
-		queryPerson {
+
+const Common = `id
+		name
+		work
+		living_at
+		address
+		work1
+		work1_address
+		work2
+		work2_address
+		phone
+		cell_phone
+		work_phone
+		national_id
+		area {
 			id
 			name
-			work
-			living_at
-			address
-			work1
-			work1_address
-			work2
-			work2_address
-			phone
-			cell_phone
-			work_phone
-			national_id
-			direct_children {
-				id
-			}
-			area {
-				id
-				name
-			}
+		}
+		father {
+			id
+			name
+		}
+`
+
+function dealWithDepth(depth) {
+	
+	if (depth <= 1) return ``
+
+	let result = ``
+	
+	for (let i = 1; i < depth; i++) {
+		result += `direct_children {
+			${Common}
+		`
+	}
+	
+	result += `}`.repeat(depth - 1)
+	
+	return result
+}
+
+export const ALL_PERSON_QUERY = (depth) => gql`
+	query AllPersonQuery {
+		queryPerson(filter: {has: high}) {
+			${Common}
+			${dealWithDepth(depth)}
 		}
 	}
 `;
@@ -62,3 +85,25 @@ export const ALL_AREA_QUERY = gql`
 		}
 	}
 `;
+
+export const ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY = gql`
+	query AllPeopleNamesIDs {
+		queryPerson {
+			id
+			name
+			depth
+			direct_children {
+				id
+			}
+		}
+	}
+`
+
+export const MAX_DEPTH_QUERY = gql`
+	query MaxDepthPerson {
+		aggregatePerson {
+			depthMax
+		}
+  	}
+`
+

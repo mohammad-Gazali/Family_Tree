@@ -3,19 +3,30 @@ import React, { useState } from "react";
 import Tree from "react-d3-tree";
 import { useQuery } from "@apollo/client";
 import { DetailsCard } from "../components";
-import { ALL_PERSON_QUERY } from "../graphQL/queries";
+import { ALL_PERSON_QUERY, MAX_DEPTH_QUERY } from "../graphQL/queries";
 import { Favorite } from "@mui/icons-material";
-
+import finalData from "./handleChildren";
+import { useEffect } from "react";
 
 
 const Graph = () => {
 
 	const [clickedPerson, setClickedPerson] = useState([false, {}]);
+	const [handledData, setHandledData] = useState([]);
+
+	const { loading: maxLoding, error: maxError, data: maxData } = useQuery(MAX_DEPTH_QUERY)
+	const { loading, error, data } = useQuery(ALL_PERSON_QUERY(maxData?.aggregatePerson.depthMax));
+
+
+	useEffect(() => {
+		if (data && data.queryPerson) {
+			setHandledData(() => finalData(data.queryPerson))
+		}
+	}, [data?.queryPerson])
 	
-	const { loading, error, data } = useQuery(ALL_PERSON_QUERY);
 
 	//* For Loading State
-	if (loading){
+	if (loading || maxLoding){
 		return (
 			<CircularProgress
 				color="secondary"
@@ -30,7 +41,7 @@ const Graph = () => {
 	}
 
 	//* For Error State
-	if (error) {
+	if (error || maxError) {
 		return (
 			<Alert
 				variant="filled"
@@ -44,11 +55,10 @@ const Graph = () => {
 					fontSize: 20,
 				}}
 			>
-				{error.message}
+				{error ? error.message : maxError.message}
 			</Alert>
 		);
 	}
-
 
 	const handleNodeClick = (e) => {
 		if (e.depth) {
@@ -58,21 +68,6 @@ const Graph = () => {
 		}
 	};
 
-	//* Tree Data
-	const handledData = {
-		name: "Family",
-		children: []
-	}
-
-	data.queryPerson.forEach((item) => {
-		handledData.children.push({
-			name: item.name,
-			attributes: {
-				id: item.id,
-			},
-			personInfo: item
-		})
-	})
 
 	return (
 		<Container sx={{ mt: 6, display: "flex", flexDirection: "column" }}>
@@ -89,24 +84,30 @@ const Graph = () => {
 					direction: "rtl"
 				}}
 			>
-				<Tree
-					data={handledData}
-					rootNodeClassName="node__root"
-					branchNodeClassName="node__branch"
-					leafNodeClassName="node__leaf"
-					orientation="vertical"
-					pathFunc="step"
-					dimensions={{
-						width: 650,
-						height: 200
-					}}
-					nodeSize={{
-						x: 200,
-						y: 200
-					}}
-					enableLegacyTransitions={true}
-					onNodeClick={handleNodeClick}
-				/>
+				{
+					handledData.length !== 0
+					?
+					<Tree
+						data={handledData}
+						rootNodeClassName="node__root"
+						branchNodeClassName="node__branch"
+						leafNodeClassName="node__leaf"
+						orientation="vertical"
+						pathFunc="step"
+						dimensions={{
+							width: 650,
+							height: 200
+						}}
+						nodeSize={{
+							x: 200,
+							y: 200
+						}}
+						enableLegacyTransitions={true}
+						onNodeClick={handleNodeClick}
+					/>
+					:
+					null
+				}
 			</Paper>
 			<Box sx={{
 				my: 3

@@ -21,6 +21,7 @@ const EditingForm = () => {
   const { loading: loading2, error: error2, data: data2  } = useQuery(ALL_AREA_QUERY)
   const { loading, error, data } = useQuery(ONE_PERSON_QUERY(id));
 
+
   useEffect(() => {
     if (data2?.queryArea) {
       setAreas(() => Array.from(data2.queryArea))
@@ -78,17 +79,16 @@ const EditingForm = () => {
       cell_phone: -1,
       work_phone: -1, 
       national_id: -1,
-      direct_children: [],
       area: {
         id: ""
       },
     };
 
-    const keys = ['work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'direct_children', 'area']
+    const keys = ['work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'area']
 
     
     //* Loop for adding the values of the form
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 12; i++) {
       if (typeof values[keys[i]] === "string") {
         values[keys[i]] = e.target[i].value || ""
       } else if (typeof values[keys[i]] === "number") {
@@ -101,7 +101,7 @@ const EditingForm = () => {
     }
 
     //* Loop for removing empty values
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 12; i++) {
       if (values[keys[i]] === "" || values[keys[i]] === -1) {
         delete values[keys[i]]
       } else if (typeof values[keys[i]] === "object" && Object.keys(values[keys[i]]).length === 0) {
@@ -168,17 +168,10 @@ const EditingForm = () => {
               <TextField defaultValue={data?.getPerson.cell_phone} variant="filled" color="secondary" name="cell_phone" type="number" id="cell_phone" label="الجوال الخليوي" />
               <TextField defaultValue={data?.getPerson.work_phone} variant="filled" color="secondary" name="work_phone" type="number" id="work_phone" label="هاتف العمل" />
               <TextField defaultValue={data?.getPerson.national_id} variant="filled" color="secondary" name="national_id" type="number" id="national_id" label="الرقم الوطني" />
-              <TextField variant="filled" color="secondary" name="childs" id="childs" defaultValue="101" select label="الأبناء">
-                <MenuItem value="101">wow 1</MenuItem>
-                <MenuItem value="102">wow 2</MenuItem>
-                <MenuItem value="103">wow 3</MenuItem>
-                <MenuItem value="104">wow 4</MenuItem>
-                <MenuItem value="105">wow 5</MenuItem>
-              </TextField>
               {
               areas.length !== 0
               ?
-              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif'} }} variant="filled" color="secondary" name="area_id" id="area_id" defaultValue={data?.getPerson.area.id} select label="القيد">
+              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif'} }} variant="filled" color="secondary" name="area_id" id="area_id" defaultValue={data?.getPerson.area?.id} select label="القيد">
                 {areas.map(a => {
                   return <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
                 })}
@@ -187,7 +180,7 @@ const EditingForm = () => {
               null
               }
             </Box>
-            <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch' }} color="secondary" type='submit' variant='contained' endIcon={<Edit />}>
+            <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch', '& *': { pointerEvents: 'none !important' } }} color="secondary" type='submit' variant='contained' endIcon={<Edit />} onClick={(e) => { e.target.style.pointerEvents = 'none'; e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.12)'; e.target.style.color = 'rgba(0, 0, 0, 0.26)'; e.target.style.boxShadow = 'none' }}>
               تعديل
             </Button>
           </Box>

@@ -1,38 +1,67 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { Delete, Undo } from '@mui/icons-material';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { Delete, Undo, CheckCircleOutline } from '@mui/icons-material';
 import { Alert, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Typography } from '@mui/material';
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Tree from 'react-d3-tree';
 import { useNavigate } from 'react-router-dom';
-import { DELETE_PERSON_MUTATION } from '../graphQL/mutations';
-import { ALL_PERSON_QUERY } from '../graphQL/queries';
+import { EDIT_CHILDS_REFERENCE_MUTATION, DELETE_PERSON_MUTATION } from '../graphQL/mutations';
+import { ALL_PERSON_QUERY, MAX_DEPTH_QUERY } from '../graphQL/queries';
+import finalData from './handleChildren';
 
 const DeleteGraph = () => {
 
     const navigate = useNavigate();
 
-    const [openWithData, setOpenWithData] = useState([false, "", ""])
+    const [openWithData, setOpenWithData] = useState([false, "", "", ""])
+	const [normalOpen, setNormalOpen] = useState(false)
+    const [handledData, setHandledData] = useState([]);
 
-    const { loading, error, data } = useQuery(ALL_PERSON_QUERY);
-
+	const { loading: maxLoding, error: maxError, data: maxData } = useQuery(MAX_DEPTH_QUERY)
+	const { loading, error, data } = useQuery(ALL_PERSON_QUERY(maxData?.aggregatePerson.depthMax));
+	
+	
+	useEffect(() => {
+		if (data && data.queryPerson) {
+			setHandledData(() => finalData(data.queryPerson))
+		}
+	}, [data?.queryPerson])
+	
     const [deletePerson, info] = useMutation(DELETE_PERSON_MUTATION);
+	const [editChildrenReference, info2] = useMutation(EDIT_CHILDS_REFERENCE_MUTATION);
 
     const handleNodeClick = (e) => {
-		if (e.depth) {
-			setOpenWithData(() => [true, e.data.personId, e.data.personName])
+		if (e.depth && e.children && e.children.length !== 0) {
+			setNormalOpen(() => true)
+		}
+		else if (e.depth) {
+			setOpenWithData(() => [true, e.data.personInfo?.id, e.data.personInfo?.name, e.data.personInfo?.father?.id])
 		}
 	};
 
     const handleClose = () => {
-        setOpenWithData(() => [false, "", ""])
+        setOpenWithData(() => [false, "", "", ""])
     }
+
+	const handleSecondClose = () => {
+		setNormalOpen(() => false)
+	}
 
     const handleDelete = async () => {
         try {
-            const response = await deletePerson({variables: {
-                id: openWithData[1]
-            }})
+			
+			if (openWithData[3]) {
+				await editChildrenReference({
+					variables: {
+						id: openWithData[3],
+						childId: openWithData[1]
+					}
+				})
+			}
+			
+			const response = await deletePerson({variables: {
+				id: openWithData[1]
+			}})
 
             navigate('/')
             window.location.reload()
@@ -40,12 +69,13 @@ const DeleteGraph = () => {
         } catch (error) {
             console.log(error)
             console.log(info)
+			console.log(info2)
         }
     }
 
 
 	//* For Loading State
-	if (loading){
+	if (loading || maxLoding){
 		return (
 			<CircularProgress
 				color="secondary"
@@ -60,7 +90,7 @@ const DeleteGraph = () => {
 	}
 
 	//* For Error State
-	if (error) {
+	if (error || maxError) {
 		return (
 			<Alert
 				variant="filled"
@@ -74,28 +104,10 @@ const DeleteGraph = () => {
 					fontSize: 20,
 				}}
 			>
-				{error.message}
+				{error ? error.message : maxError && maxError.message}
 			</Alert>
 		);
 	}
-
-
-	//* Tree Data
-	const handledData = {
-		name: "Family",
-		children: []
-	}
-
-	data?.queryPerson.forEach((item) => {
-		handledData.children.push({
-			name: item.name,
-			attributes: {
-				id: item.id,
-			},
-			personId: item.id,
-            personName: item.name
-		})
-	})
 
     return (
 		<Container sx={{ my: 6, display: "flex", flexDirection: "column" }}>
@@ -112,24 +124,31 @@ const DeleteGraph = () => {
 					direction: "rtl"
 				}}
 			>
-				<Tree
-					data={handledData}
-					rootNodeClassName="node__root"
-					branchNodeClassName="node__branch"
-					leafNodeClassName="node__leaf"
-					orientation="vertical"
-					pathFunc="step"
-					dimensions={{
-						width: 650,
-						height: 200
-					}}
-					nodeSize={{
-						x: 200,
-						y: 200
-					}}
-					enableLegacyTransitions={true}
-					onNodeClick={handleNodeClick}
-				/>
+				{
+					handledData.length !== 0
+					?
+					<Tree
+						data={handledData}
+						collapsible={false}
+						rootNodeClassName="node__root"
+						branchNodeClassName="node__branch"
+						leafNodeClassName="node__leaf"
+						orientation="vertical"
+						pathFunc="step"
+						dimensions={{
+							width: 650,
+							height: 200
+						}}
+						nodeSize={{
+							x: 200,
+							y: 200
+						}}
+						enableLegacyTransitions={true}
+						onNodeClick={handleNodeClick}
+					/>
+					:
+					null
+				}
 			</Paper>
             <Dialog
                 open={openWithData[0]}
@@ -156,6 +175,31 @@ const DeleteGraph = () => {
                     </Button>
                     <Button variant='contained' onClick={handleDelete} color="error" endIcon={<Delete />}>
                         حذف
+                    </Button>
+                </DialogActions>
+            </Dialog>
+			<Dialog
+                open={normalOpen}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title-2"
+                aria-describedby="alert-dialog-description-2"
+                sx={{
+                    '&, & *:not(style)': {
+                        fontFamily: '"Cairo", sans-serif'
+                    }
+                }}
+            >
+                <DialogTitle id="alert-dialog-title-2">
+                    عملية الحذف غير ممكنة
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText id="alert-dialog-description-2">
+                    لا يمكنك حذف هذه العقدة. يجب عليك أن تحذف جميع العقد (الأبناء) المرتبطة بها. وبعد ذلك ستتمكن من حذف هذه العقدة.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant='contained' color="warning" onClick={handleSecondClose} endIcon={<CheckCircleOutline />}>
+                        حسناً
                     </Button>
                 </DialogActions>
             </Dialog>

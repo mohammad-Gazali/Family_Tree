@@ -3,9 +3,10 @@ import { Alert, Button, CircularProgress, Container, MenuItem, TextField, Typogr
 import { Box } from '@mui/system'
 import { useQuery, useMutation } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
-import { ALL_AREA_QUERY } from '../graphQL/queries'
-import { ADD_PERSON_MUTATION } from '../graphQL/mutations'
+import { ALL_AREA_QUERY, ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY } from '../graphQL/queries'
+import { ADD_PERSON_MUTATION, UPDATE_PERSON_MUTATION } from '../graphQL/mutations'
 import { useNavigate } from 'react-router-dom'
+import { getChilds, getDepth } from './figureDepthChilds'
 
 
 const AddingForm = () => {
@@ -13,10 +14,15 @@ const AddingForm = () => {
   const navigate = useNavigate();
 
   const { loading, error, data } = useQuery(ALL_AREA_QUERY);
-    
+  const { loading: loading2, error: error2, data: data2 } = useQuery(ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY);  
+
+
   const [ addPerson, info ] = useMutation(ADD_PERSON_MUTATION);
-    
+  const [ updatePerson, info2 ] = useMutation(UPDATE_PERSON_MUTATION)
+
+
   const [areas, setAreas] = useState([])
+  const [fathers, setFathers] = useState([])
 
   useEffect(() => {
     if (data?.queryArea) {
@@ -24,9 +30,15 @@ const AddingForm = () => {
     }
   }, [data])
 
+  useEffect(() => {
+    if (data2?.queryPerson) {
+      setFathers(() => Array.from(data2.queryPerson))
+    }
+  }, [data2])
+
 
   //* For Loading State
-	if (loading){
+	if (loading || loading2){
 		return (
 			<CircularProgress
 				color="secondary"
@@ -41,7 +53,7 @@ const AddingForm = () => {
 	}
 
 	//* For Error State
-	if (error) {
+	if (error || error2) {
 		return (
 			<Alert
 				variant="filled"
@@ -55,7 +67,7 @@ const AddingForm = () => {
 					fontSize: 20,
 				}}
 			>
-				{error.message}
+				{error ? error.message : error2.message}
 			</Alert>
 		);
 	}
@@ -77,13 +89,15 @@ const AddingForm = () => {
       cell_phone: -1,
       work_phone: -1, 
       national_id: -1,
-      direct_children: [],
       area: {
         id: ""
       },
+      father: {
+        id: ""
+      }
     };
 
-    const keys = ['name', 'work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'direct_children', 'area']
+    const keys = ['name', 'work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'area', 'father']
 
     
     //* Loop for adding the values of the form
@@ -98,21 +112,42 @@ const AddingForm = () => {
         values[keys[i]] = { id: e.target[i].value || "" }
       }
     }
-
+    let isHigh = false
     //* Loop for removing empty values
     for (let i = 0; i < 14; i++) {
       if (values[keys[i]] === "" || values[keys[i]] === -1) {
         delete values[keys[i]]
-      } else if (typeof values[keys[i]] === "object" && Object.keys(values[keys[i]]).length === 0) {
+      } else if (values[keys[i]].id && values[keys[i]].id === "NON-VALUE") {
         delete values[keys[i]]
+        isHigh = true
       }
+    }
+
+    let depth, fatherChilds;
+    if (isHigh) {
+      depth = 1
+      values.high = true
+    } else {
+      depth = getDepth(data2.queryPerson, values["father"].id)
+      fatherChilds = getChilds(data2.queryPerson, values["father"].id)
     }
 
     //* Sending The Data
     try {
       const response = await addPerson({variables: {
-        input: values,
+        input: { ...values, depth },
       }})
+
+      if (fatherChilds) {
+        const newFatherChilds = [...fatherChilds, { id: response.data.addPerson.person[0].id }]
+  
+        await updatePerson({variables: {
+          id: values["father"].id,
+          set: {
+            direct_children: newFatherChilds
+          }
+        }})
+      }
 
       navigate('/')
       window.location.reload()
@@ -120,6 +155,7 @@ const AddingForm = () => {
     } catch (error) {
       console.log(error)
       console.log(info)
+      console.log(info2)
     }
   }
 
@@ -167,26 +203,31 @@ const AddingForm = () => {
             <TextField variant="filled" color="secondary" name="cell_phone" type="number" id="cell_phone" label="الجوال الخليوي" />
             <TextField variant="filled" color="secondary" name="work_phone" type="number" id="work_phone" label="هاتف العمل" />
             <TextField variant="filled" color="secondary" name="national_id" type="number" id="national_id" label="الرقم الوطني" />
-            <TextField variant="filled" color="secondary" name="childs" id="childs" defaultValue={"101"} select label="الأبناء">
-              <MenuItem value={"101"}>wow 1</MenuItem>
-              <MenuItem value={"102"}>wow 2</MenuItem>
-              <MenuItem value={"103"}>wow 3</MenuItem>
-              <MenuItem value={"104"}>wow 4</MenuItem>
-              <MenuItem value={"105"}>wow 5</MenuItem>
-            </TextField>
             {
-            areas.length !== 0
+              areas.length !== 0
             ?
-            <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif'} }} variant="filled" color="secondary" name="area_id" id="area_id" defaultValue={areas[0].id} select label="القيد">
-              {areas.map(a => {
-                return <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
-              })}
-            </TextField>
+              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif !important'} }} variant="filled" color="secondary" name="area_id" id="area_id" defaultValue={areas[0].id} select label="القيد">
+                {areas.map(a => {
+                  return <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
+                })}
+              </TextField>
             :
-            null
+              null
+            }
+            {
+              fathers.length !== 0
+            ?
+              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif !important'} }} variant="filled" color="secondary" name="father_id" id="father_id" defaultValue={"NON-VALUE"} select label="الأب">
+                <MenuItem value="NON-VALUE"><Typography fontFamily={'"Cairo", sans-serif !important'}>غير محدد</Typography></MenuItem>
+                {fathers.map(f => {
+                  return <MenuItem key={f.id} value={f.id}><Typography component="div" fontFamily={'"Cairo", sans-serif !important'}><Box display="inline-block" color="text.secondary" fontSize="12px">({f.id})</Box> {f.name}</Typography></MenuItem>
+                })}
+              </TextField>
+            :
+              null
             }
           </Box>
-          <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch' }} color="secondary" type='submit' variant='contained' endIcon={<Add />}>
+          <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch', '& *': { pointerEvents: 'none !important' } }} color="secondary" type='submit' variant='contained' endIcon={<Add />} onClick={(e) => { e.target.style.pointerEvents = 'none'; e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.12)'; e.target.style.color = 'rgba(0, 0, 0, 0.26)'; e.target.style.boxShadow = 'none' }}>
             إضافة
           </Button>
         </Box>
@@ -195,42 +236,3 @@ const AddingForm = () => {
 }
 
 export default AddingForm
-
-
-
-
-
-
-
-// addPerson({ variables: { input: values } });
-
-// (
-//   input: {
-//     name: "${values[0]}",
-//     ${values[1] ? `work: "${values[1]}",` : "" }
-//     ${values[2] ? `living_at: "${values[2]}",` : "" }
-//     ${values[3] ? `address: "${values[3]}",` : "" }
-//     ${values[4] ? `work1: "${values[4]}",` : "" }
-//     ${values[5] ? `work1_address: "${values[5]}",` : "" }
-//     ${values[6] ? `work2: "${values[6]}",` : "" }
-//     ${values[7] ? `work2_address: "${values[7]}",` : "" }
-//     ${values[8] ? `phone: ${values[8]},` : "" }
-//     ${values[9] ? `cell_phone: ${values[9]},` : "" }
-//     ${values[10] ? `work_phone: ${values[10]},` : "" }
-//     ${values[11] ? `national_id: ${values[11]},` : "" }
-//     ${values[13] ? `
-//     area: {
-//       id: "${values[13]}"
-//     }
-//     ` : ""
-//     }
-//   }
-// )
-
-
-
-//
-// "Variable type provided [AddPersonInput!] is incompatible with expected type [AddPersonInput!]!
-//  Variable "$input" of type "[AddPersonInput!]" used in position expecting type "[AddPersonInput!]!"."
-//
-//

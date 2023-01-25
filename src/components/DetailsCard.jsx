@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, List, ListSubheader, Paper } from '@mui/material'
-import { Person, Build, LocationOn, Home, Work, Factory, WorkOutline, FactoryOutlined, Phone, Smartphone, ContactPhone, Grid3x3, CoPresent } from '@mui/icons-material';
+import { Person, Build, LocationOn, Home, Work, Factory, WorkOutline, FactoryOutlined, Phone, Smartphone, ContactPhone, Grid3x3, CoPresent, SupervisedUserCircle } from '@mui/icons-material';
 import Edit from '@mui/icons-material/Edit'
 import DetailsCardItem from './DetailsCardItem';
 import DetailsCardChildrenItem from './DetailsCardChildrenItem';
@@ -31,6 +31,7 @@ const DetailsCard = ({ person }) => {
           تفاصيل الشخص
         </ListSubheader>
         <DetailsCardItem icon={<Person />} text="الاسم" content={person.name} />
+        <DetailsCardItem icon={<SupervisedUserCircle />} text="الأب" content={person.father?.name} />
         <DetailsCardItem icon={<Build />} text="العمل" content={person.work} />
         <DetailsCardItem icon={<LocationOn />} text="السكن" content={person.living_at} />
         <DetailsCardItem icon={<Home />} text="العنوان" content={person.address} />
@@ -42,8 +43,8 @@ const DetailsCard = ({ person }) => {
         <DetailsCardItem icon={<Smartphone />} text="رقم الجوال" content={person.cell_phone} cellPhone={true} />
         <DetailsCardItem icon={<ContactPhone />} text="رقم العمل" content={person.work_phone} />
         <DetailsCardItem icon={<Grid3x3 />} text="الرقم الوطني" content={person.national_id} />
-        <DetailsCardItem icon={<CoPresent />} text="القيد" content={person.area.name} />
-        <DetailsCardChildrenItem childs={person.children} />
+        <DetailsCardItem icon={<CoPresent />} text="القيد" content={person.area?.name} />
+        <DetailsCardChildrenItem childs={person.direct_children} />
       </List>
     </Paper>
   )
