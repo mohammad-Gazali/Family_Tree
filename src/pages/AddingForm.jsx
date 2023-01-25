@@ -184,7 +184,7 @@ const AddingForm = () => {
           </Typography>
           <Box sx={{
             '& *': { fontFamily: '"Cairo", sans-serif !important' },
-            '& > :not(style)': { m: 1, width: '40ch'},
+            '& > :not(style)': { m: 1, width: {xs: '100%', sm: '40ch'}},
             '& label': { fontSize: 14 },
             '& input': { fontSize: 14 },
             display: 'flex',
@@ -227,7 +227,7 @@ const AddingForm = () => {
               <input type="hidden" name="father_id" value="NON-VALUE" />
             }
           </Box>
-          <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: '50ch', '& *': { pointerEvents: 'none !important' } }} color="secondary" type='submit' variant='contained' endIcon={<Add />} onClick={(e) => { e.target.style.pointerEvents = 'none'; e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.12)'; e.target.style.color = 'rgba(0, 0, 0, 0.26)'; e.target.style.boxShadow = 'none' }}>
+          <Button sx={{ mt: 3, fontFamily: '"Cairo", sans-serif', width: {xs: '90%', sm: '50ch'}, '& *': { pointerEvents: 'none !important' } }} color="secondary" type='submit' variant='contained' endIcon={<Add />} onClick={(e) => { e.target.style.pointerEvents = 'none'; e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.12)'; e.target.style.color = 'rgba(0, 0, 0, 0.26)'; e.target.style.boxShadow = 'none' }}>
             إضافة
           </Button>
         </Box>
