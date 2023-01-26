@@ -21,7 +21,7 @@ const DetailsCardItem = ({ icon, text, content, cellPhone }) => {
                     { text }
                 </Box>
                 <ListItemButton divider={true} >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{ display: {xs: 'none', sm: 'block'} }}>
                         { icon }
                     </ListItemIcon>
                     { cellPhone ? `0${content}` : content }

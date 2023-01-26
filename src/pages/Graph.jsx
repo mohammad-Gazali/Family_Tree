@@ -99,7 +99,7 @@ const Graph = () => {
 							height: 200
 						}}
 						nodeSize={{
-							x: 200,
+							x: 250,
 							y: 200
 						}}
 						enableLegacyTransitions={true}

@@ -14,6 +14,7 @@ const Common = `id
 		cell_phone
 		work_phone
 		national_id
+		birthdate
 		area {
 			id
 			name
@@ -86,12 +87,13 @@ export const ALL_AREA_QUERY = gql`
 	}
 `;
 
-export const ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY = gql`
+export const ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_BIRTHDATE_QUERY = gql`
 	query AllPeopleNamesIDs {
 		queryPerson {
 			id
 			name
 			depth
+			birthdate
 			direct_children {
 				id
 			}

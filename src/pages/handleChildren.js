@@ -2,7 +2,7 @@ function dataWithoutChildren(person) {
     return {
         name: person.name,
         attributes: {
-            id: person.id
+            birth: person.birthdate
         },
         personInfo: person,
     }
@@ -14,7 +14,7 @@ function dataWithChildren(person) {
             name: person.name,
             personInfo: person,
             attributes: {
-                id: person.id
+                birth: person.birthdate
             },
             children: person.direct_children?.map(dataWithChildren)
         }
@@ -23,7 +23,7 @@ function dataWithChildren(person) {
             name: person.name,
             personInfo: person,
             attributes: {
-                id: person.id
+                birth: person.birthdate
             },
             children: person.direct_children?.map(dataWithoutChildren)
         }
@@ -60,7 +60,7 @@ export default function finalData(people) {
                 name: person.name,
                 personInfo: person,
                 attributes: {
-                    id: person.id
+                    birth: person.birthdate
                 },
                 children: personChildsData
             })

@@ -3,7 +3,7 @@ import { Alert, Button, CircularProgress, Container, MenuItem, TextField, Typogr
 import { Box } from '@mui/system'
 import { useQuery, useMutation } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
-import { ALL_AREA_QUERY, ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY } from '../graphQL/queries'
+import { ALL_AREA_QUERY, ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_BIRTHDATE_QUERY } from '../graphQL/queries'
 import { ADD_PERSON_MUTATION, UPDATE_PERSON_MUTATION } from '../graphQL/mutations'
 import { useNavigate } from 'react-router-dom'
 import { getChilds, getDepth } from './figureDepthChilds'
@@ -14,7 +14,7 @@ const AddingForm = () => {
   const navigate = useNavigate();
 
   const { loading, error, data } = useQuery(ALL_AREA_QUERY);
-  const { loading: loading2, error: error2, data: data2 } = useQuery(ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_QUERY);  
+  const { loading: loading2, error: error2, data: data2 } = useQuery(ALL_PERSON_NAMES_IDS_DEPTH_CHILDSiDS_BIRTHDATE_QUERY);  
 
 
   const [ addPerson, info ] = useMutation(ADD_PERSON_MUTATION);
@@ -23,6 +23,7 @@ const AddingForm = () => {
 
   const [areas, setAreas] = useState([])
   const [fathers, setFathers] = useState([])
+  const [searchContent, setSearchContent] = useState([])
 
   useEffect(() => {
     if (data?.queryArea) {
@@ -33,6 +34,7 @@ const AddingForm = () => {
   useEffect(() => {
     if (data2?.queryPerson) {
       setFathers(() => Array.from(data2.queryPerson))
+      setSearchContent(() => Array.from(data2.queryPerson))
     }
   }, [data2])
 
@@ -72,6 +74,12 @@ const AddingForm = () => {
 		);
 	}
 
+  const handleSearch = (e) => {
+    setSearchContent(() => {
+      return fathers.filter((item) => item.name.includes(e.target.value))
+    })
+  }
+
   const handleSubmit = async (e) => {
     
     e.preventDefault();
@@ -89,6 +97,7 @@ const AddingForm = () => {
       cell_phone: -1,
       work_phone: -1, 
       national_id: -1,
+      birthdate: -1,
       area: {
         id: ""
       },
@@ -97,11 +106,11 @@ const AddingForm = () => {
       }
     };
 
-    const keys = ['name', 'work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'area', 'father']
+    const keys = ['name', 'work', 'living_at', 'address', 'work1', 'work1_address', 'work2', 'work2_address', 'phone', 'cell_phone', 'work_phone', 'national_id', 'birthdate', 'area', 'father']
 
     
     //* Loop for adding the values of the form
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 15; i++) {
       if (typeof values[keys[i]] === "string") {
         values[keys[i]] = e.target[i].value || ""
       } else if (typeof values[keys[i]] === "number") {
@@ -114,7 +123,7 @@ const AddingForm = () => {
     }
     let isHigh = false
     //* Loop for removing empty values
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 15; i++) {
       if (values[keys[i]] === "" || values[keys[i]] === -1) {
         delete values[keys[i]]
       } else if (values[keys[i]].id && values[keys[i]].id === "NON-VALUE") {
@@ -160,7 +169,7 @@ const AddingForm = () => {
   }
 
   return (
-    <Container sx={{ mt: 2 }}>
+    <Container sx={{ mt: 2, position: 'relative' }}>
         <Box 
         onSubmit={handleSubmit}
         component="form"
@@ -184,7 +193,8 @@ const AddingForm = () => {
           </Typography>
           <Box sx={{
             '& *': { fontFamily: '"Cairo", sans-serif !important' },
-            '& > :not(style)': { m: 1, width: {xs: '100%', sm: '40ch'}},
+            '& > :not(style)': { width: {xs: '100%', sm: '40ch'}},
+            '& > *:not(style, #father_id)': { m: 1 },
             '& label': { fontSize: 14 },
             '& input': { fontSize: 14 },
             display: 'flex',
@@ -203,6 +213,7 @@ const AddingForm = () => {
             <TextField variant="filled" color="secondary" name="cell_phone" type="number" id="cell_phone" label="الجوال الخليوي" />
             <TextField variant="filled" color="secondary" name="work_phone" type="number" id="work_phone" label="هاتف العمل" />
             <TextField variant="filled" color="secondary" name="national_id" type="number" id="national_id" label="الرقم الوطني" />
+            <TextField variant="filled" color="secondary" name="birthdate" type="number" id="birthdate" label="سنة التولد" required />
             {
               areas.length !== 0
             ?
@@ -217,10 +228,10 @@ const AddingForm = () => {
             {
               fathers.length !== 0
             ?
-              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif !important'} }} variant="filled" color="secondary" name="father_id" id="father_id" defaultValue={"NON-VALUE"} select label="الأب">
+              <TextField sx={{ '& *:not(style)': {fontFamily: '"Cairo", sans-serif !important'}, mt: "83px !important" }} variant="filled" color="secondary" name="father_id" id="father_id" defaultValue={"NON-VALUE"} select label="الأب">
                 <MenuItem value="NON-VALUE"><Typography fontFamily={'"Cairo", sans-serif !important'}>غير محدد</Typography></MenuItem>
-                {fathers.map(f => {
-                  return <MenuItem key={f.id} value={f.id}><Typography component="div" fontFamily={'"Cairo", sans-serif !important'}><Box display="inline-block" color="text.secondary" fontSize="12px">({f.id})</Box> {f.name}</Typography></MenuItem>
+                {searchContent.map(f => {
+                  return <MenuItem key={f.id} value={f.id}><Typography component="div" fontFamily={'"Cairo", sans-serif !important'}>{f.name} <Box display="inline-block" color="text.secondary" fontSize="12px">({f.birthdate})</Box></Typography></MenuItem>
                 })}
               </TextField>
             :
@@ -231,6 +242,7 @@ const AddingForm = () => {
             إضافة
           </Button>
         </Box>
+        <TextField variant='filled' label="بحث عن اسم الأب" sx={{ position: 'absolute', zIndex: 3, bottom: 174, right: '50%', transform: 'translateX(50%)', width: {xs: '70%', sm: '46ch'}, '&, & *': { fontFamily: '"Cairo", sans-serif !important', fontSize: 14 } }} onChange={handleSearch} />
     </Container>
   )
 }
