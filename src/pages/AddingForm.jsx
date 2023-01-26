@@ -200,6 +200,7 @@ const AddingForm = () => {
             display: 'flex',
             justifyContent: 'center',
             flexWrap: 'wrap',
+            maxWidth: '800px !important'
           }}>
             <TextField variant="filled" color="secondary" name="name" id="name" label="الاسم" required />
             <TextField variant="filled" color="secondary" name="work" id="work" label="الاختصاص" />
